@@ -1,0 +1,163 @@
+/* Estilos anteriores se mantienen igual */
+
+/* Nuevos estilos para el diagrama específico */
+.column-numbers {
+  margin-bottom: 10px;
+}
+
+.column-number {
+  width: 40px;
+  text-align: center;
+  font-weight: bold;
+  color: #495057;
+  background: #f8f9fa;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.vertical-line {
+  width: 2px;
+  height: 40px;
+  background-color: #6c757d;
+  margin: 0 15px;
+}
+
+.row-letter {
+  font-weight: bold;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.seat-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.seat {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  margin: 0 5px;
+}
+
+.seat:hover {
+  transform: scale(1.1);
+}
+
+/* Estilos para el diagrama de asientos */
+.business-seat {
+  background-color: #4CAF50; /* Verde para negocios disponibles */
+  color: white;
+  border: 2px solid #388E3C;
+}
+
+.business-seat.occupied {
+  background-color: #FF5722; /* Naranja para negocios ocupados */
+  border-color: #D84315;
+}
+
+.economy-seat {
+  background-color: #2196F3; /* Azul para económicos disponibles */
+  color: white;
+  border: 2px solid #1976D2;
+}
+
+.economy-seat.occupied {
+  background-color: #FF5722; /* Naranja para económicos ocupados */
+  border-color: #D84315;
+}
+
+/* O si prefieres rojo para ocupados: */
+/*
+.business-seat.occupied {
+  background-color: #F44336;
+  border-color: #D32F2F;
+}
+
+.economy-seat.occupied {
+  background-color: #F44336;
+  border-color: #D32F2F;
+}
+*/
+
+.seat {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.seat:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Leyenda actualizada */
+.legend .badge {
+  font-size: 1.2rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.economy-seat {
+  background-color: #4caf50;
+  color: white;
+}
+
+.seat.occupied {
+  background-color: #dc3545 !important;
+  border-color: #c82333;
+}
+
+.section-divider hr {
+  border-top: 2px dashed #6c757d;
+}
+
+.business-section {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #2196f3;
+}
+
+.economy-section {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #4caf50;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .seat {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+    margin: 0 3px;
+  }
+  
+  .vertical-line {
+    margin: 0 10px;
+    height: 35px;
+  }
+  
+  .column-number {
+    width: 30px;
+    font-size: 0.8rem;
+  }
+}

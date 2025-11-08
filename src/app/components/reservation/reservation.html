@@ -1,0 +1,586 @@
+<div class="container mt-4">
+  <!-- Formulario de Búsqueda - ARRIBA -->
+  <div class="search-form card shadow-sm border-0 p-4 mb-5">
+    <h2 class="text-center text-danger fw-bold mb-4">Reserva tu vuelo ✈️</h2>
+    
+    <!-- Pestañas de tipo de vuelo -->
+    <div class="flight-type-tabs mb-4">
+      <div class="btn-group" role="group">
+        <button type="button" 
+                class="btn" 
+                [class.btn-primary]="flightType === 'roundtrip'"
+                [class.btn-outline-primary]="flightType !== 'roundtrip'"
+                (click)="setFlightType('roundtrip')">
+          Ida y vuelta
+        </button>
+        <button type="button" 
+                class="btn"
+                [class.btn-primary]="flightType === 'oneway'"
+                [class.btn-outline-primary]="flightType !== 'oneway'"
+                (click)="setFlightType('oneway')">
+          Solo ida
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario de búsqueda -->
+    <div class="search-fields">
+      <div class="row g-3 align-items-end">
+        <!-- Origen -->
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Origen</label>
+          <select class="form-select" [(ngModel)]="origin" required>
+            <option value="">Selecciona origen</option>
+            <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+
+        <!-- Destino -->
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Destino</label>
+          <select class="form-select" [(ngModel)]="destination" required>
+            <option value="">Selecciona destino</option>
+            <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+
+        <!-- Fecha de ida -->
+        <div class="col-md-2">
+          <label class="form-label fw-bold">Fecha ida</label>
+          <input type="date" class="form-control" [(ngModel)]="departureDate" [min]="today">
+        </div>
+
+        <!-- Fecha de vuelta - Solo se muestra si es ida y vuelta -->
+        <div class="col-md-2" *ngIf="flightType === 'roundtrip'">
+          <label class="form-label fw-bold">Fecha vuelta</label>
+          <input type="date" class="form-control" [(ngModel)]="returnDate" [min]="departureDate || today">
+        </div>
+
+        <!-- Espacio para mantener el layout cuando no hay fecha de vuelta -->
+        <div class="col-md-2" *ngIf="flightType === 'oneway'"></div>
+
+        <!-- Pasajeros - CON PANEL MEJORADO -->
+        <div class="col-md-2">
+          <label class="form-label fw-bold">Pasajeros</label>
+          <div class="passenger-dropdown-container">
+            <div class="passenger-dropdown border rounded bg-light" 
+                (click)="togglePassengerPanel()" style="cursor:pointer;">
+              <div class="d-flex justify-content-between align-items-center p-2">
+                <span>{{ adults + children }}</span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+
+            <!-- Panel de pasajeros que se despliega - DISEÑO VERTICAL -->
+            <div class="passenger-panel shadow-sm rounded bg-white" *ngIf="passengerPanelOpen">
+              <div class="p-3">
+                <!-- Adultos - ARRIBA -->
+                <div class="passenger-item mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="fw-bold">Adultos</span>
+                      <small class="text-muted d-block">16 años o más</small>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                      <button type="button" class="btn btn-outline-danger btn-sm" 
+                              (click)="changeAdults(-1)" [disabled]="adults <= 1">-</button>
+                      <span class="fw-bold mx-2">{{ adults }}</span>
+                      <button type="button" class="btn btn-outline-danger btn-sm" 
+                              (click)="changeAdults(1)" [disabled]="adults >= 9">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Separador -->
+                <hr class="my-3">
+
+                <!-- Niños - ABAJO -->
+                <div class="passenger-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="fw-bold">Niños</span>
+                      <small class="text-muted d-block">2-15 años</small>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                      <button type="button" class="btn btn-outline-danger btn-sm" 
+                              (click)="changeChildren(-1)" [disabled]="children <= 0">-</button>
+                      <span class="fw-bold mx-2">{{ children }}</span>
+                      <button type="button" class="btn btn-outline-danger btn-sm" 
+                              (click)="changeChildren(1)" [disabled]="children >= 8">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Total -->
+                <div class="total-passengers mt-3 pt-3 border-top">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Total pasajeros:</span>
+                    <span class="fw-bold text-danger">{{ adults + children }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón de búsqueda -->
+      <div class="text-center mt-4">
+        <button class="btn btn-danger btn-lg px-5" (click)="searchFlights()" 
+                [disabled]="!origin || !destination || !departureDate">
+          Buscar Vuelos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Ofertas - SOLO se muestra si NO estamos en el mapa de asientos -->
+  <div *ngIf="!showSeatMap && !showForm && !showSummary" class="offers-section mb-5">
+    <h2 class="text-danger fw-bold mb-4">Ofertas desde Ciudad de Guatemala</h2>
+    
+    <!-- Filtros ACTUALIZADOS - Angular way -->
+    <div class="filters mb-4">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="filter-label fw-bold me-2">Filtrar por:</span>
+        <button class="btn btn-sm" 
+                [class.btn-primary]="activeFilter === 'todos'"
+                [class.btn-outline-primary]="activeFilter !== 'todos'"
+                (click)="setFilter('todos')">
+          Todos
+        </button>
+        <button class="btn btn-sm" 
+                [class.btn-primary]="activeFilter === 'latinoamerica'"
+                [class.btn-outline-primary]="activeFilter !== 'latinoamerica'"
+                (click)="setFilter('latinoamerica')">
+          Latinoamérica
+        </button>
+        <button class="btn btn-sm" 
+                [class.btn-primary]="activeFilter === 'Sudamérica'"
+                [class.btn-outline-primary]="activeFilter !== 'Sudamérica'"
+                (click)="setFilter('Sudamérica')">
+          Sudamérica
+        </button>
+      </div>
+    </div>
+
+    <!-- Paneles de Destinos LATINOAMÉRICA -->
+    <div class="destinations-panels" *ngIf="shouldShowSection('latinoamerica')">
+      <div class="row g-4">
+        <!-- Panel 1: Flores -->
+        <div class="col-md-4">
+          <div class="destination-card">
+            <div class="destination-image">
+              <img src="assets/lugar1.jpg" alt="Flores, Petén" class="img-fluid">
+              <div class="categoria-badge bg-success">
+                Latinoamérica
+              </div>
+            </div>
+            <div class="destination-info p-3">
+              <h5 class="fw-bold">Flores, Petén</h5>
+              <p class="text-muted small mb-2">Descubre la belleza natural de Petén</p>
+              <p class="text-muted mb-1">Por trayecto desde</p>
+              <p class="text-success fw-bold fs-4">Q800.00</p>
+              <button class="btn btn-danger btn-sm mt-2" (click)="reservarDesdeOfertas('Flores, Petén (FRS)')">
+                <i class="fas fa-plane"></i> Reservar este destino
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: San Salvador -->
+        <div class="col-md-4">
+          <div class="destination-card">
+            <div class="destination-image">
+              <img src="assets/lugar2.jpg" alt="San Salvador" class="img-fluid">
+              <div class="categoria-badge bg-success">
+                Latinoamérica
+              </div>
+            </div>
+            <div class="destination-info p-3">
+              <h5 class="fw-bold">San Salvador</h5>
+              <p class="text-muted small mb-2">Explora la capital de El Salvador</p>
+              <p class="text-muted mb-1">Por trayecto desde</p>
+              <p class="text-success fw-bold fs-4">Q850.00</p>
+              <button class="btn btn-danger btn-sm mt-2" (click)="reservarDesdeOfertas('San Salvador (SAL)')">
+                <i class="fas fa-plane"></i> Reservar este destino
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: San José, CR -->
+        <div class="col-md-4">
+          <div class="destination-card">
+            <div class="destination-image">
+              <img src="assets/lugar3.jpg" alt="San José, Costa Rica" class="img-fluid">
+              <div class="categoria-badge bg-success">
+                Latinoamérica
+              </div>
+            </div>
+            <div class="destination-info p-3">
+              <h5 class="fw-bold">San José, CR</h5>
+              <p class="text-muted small mb-2">Aventura en Costa Rica</p>
+              <p class="text-muted mb-1">Por trayecto desde</p>
+              <p class="text-success fw-bold fs-4">Q1000.00</p>
+              <button class="btn btn-danger btn-sm mt-2" (click)="reservarDesdeOfertas('San José, Costa Rica (SJO)')">
+                <i class="fas fa-plane"></i> Reservar este destino
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paneles de Destinos NORTEAMÉRICA -->
+    <div class="destinations-panels" *ngIf="shouldShowSection('Sudamérica')">
+      <div class="row g-4">
+        <!-- Panel 4: Rio de Janeiro -->
+        <div class="col-md-4">
+          <div class="destination-card">
+            <div class="destination-image">
+              <img src="assets/lugar4.jpg" alt="Brasil, Janeiro" class="img-fluid">
+              <div class="categoria-badge bg-info">
+                Norteamérica
+              </div>
+            </div>
+            <div class="destination-info p-3">
+              <h5 class="fw-bold">Janeiro, Brasil</h5>
+              <p class="text-muted small mb-2">Escenarios naturales, carnaval y mucha samba</p>
+              <p class="text-muted mb-1">Por trayecto desde</p>
+              <p class="text-success fw-bold fs-4">Q1500.00</p>
+              <button class="btn btn-danger btn-sm mt-2" (click)="reservarDesdeOfertas('Janeiro, Brasil (BRA)')">
+                <i class="fas fa-plane"></i> Reservar este destino
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 5: Argentina -->
+        <div class="col-md-4">
+          <div class="destination-card">
+            <div class="destination-image">
+              <img src="assets/lugar5.jpg" alt="La Bombonera" class="img-fluid">
+              <div class="categoria-badge bg-info">
+                Norteamérica
+              </div>
+            </div>
+            <div class="destination-info p-3">
+              <h5 class="fw-bold">Argentina</h5>
+              <p class="text-muted small mb-2">Conoce la Bombonera, estadio de Boca Jonior</p>
+              <p class="text-muted mb-1">Por trayecto desde</p>
+              <p class="text-success fw-bold fs-4">Q1200.00</p>
+              <button class="btn btn-danger btn-sm mt-2" (click)="reservarDesdeOfertas('Argentina (ARG)')">
+                <i class="fas fa-plane"></i> Reservar este destino
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 6: Chile -->
+        <div class="col-md-4">
+          <div class="destination-card">
+            <div class="destination-image">
+              <img src="assets/lugar6.jpg" alt="Chile" class="img-fluid">
+              <div class="categoria-badge bg-info">
+                Norteamérica
+              </div>
+            </div>
+            <div class="destination-info p-3">
+              <h5 class="fw-bold">Chile</h5>
+              <p class="text-muted small mb-2">Aventura en una de las maravillas del mundo</p>
+              <p class="text-muted mb-1">Por trayecto desde</p>
+              <p class="text-success fw-bold fs-4">Q1800.00</p>
+              <button class="btn btn-danger btn-sm mt-2" (click)="reservarDesdeOfertas('Chile (CL)')">
+                <i class="fas fa-plane"></i> Reservar este destino
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapa de asientos - SOLO se muestra después de buscar vuelos -->
+  <div *ngIf="showSeatMap" class="seat-map-container mb-4">
+    <h5 class="text-danger fw-bold mb-3">Selecciona tus asientos para: {{ origin }} → {{ destination }}</h5>
+    
+    <!-- Información del vuelo -->
+    <div class="alert alert-info mb-3">
+      <strong>Vuelo:</strong> {{ origin }} → {{ destination }} | 
+      <strong>Fecha ida:</strong> {{ departureDate }}
+      <span *ngIf="flightType === 'roundtrip'"> | <strong>Fecha vuelta:</strong> {{ returnDate }}</span>
+      | <strong>Pasajeros:</strong> {{ adults + children }}
+    </div>
+    
+    <!-- Contador de asientos -->
+    <div class="alert alert-warning mb-3">
+      <strong>Asientos seleccionados:</strong> {{ selectedSeats.length }}/{{ seatCount }}
+      <span *ngIf="selectedSeats.length > 0">
+        - Asientos: <span *ngFor="let seat of selectedSeats" class="badge bg-primary ms-1">{{ seat.label }}</span>
+      </span>
+    </div>
+
+    <!-- Mensaje de confirmación - NUEVO -->
+    <div *ngIf="showSeatMessage" class="alert alert-info alert-dismissible fade show mt-3">
+      <strong>{{ seatMessage }}</strong>
+      <button type="button" class="btn-close" (click)="dismissMessage()"></button>
+      <button *ngIf="lastSelectedSeat && isSelectingIndividual" type="button" class="btn btn-warning btn-sm ms-2" 
+              (click)="modifyLastSelection()">
+        Cambiar este asiento
+      </button>
+    </div>
+
+    <!-- Opciones de selección -->
+    <div class="mb-4">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" 
+                (click)="startManualSelection()">
+          Selección Manual
+        </button>
+        <button type="button" class="btn btn-outline-success" 
+                (click)="selectAutomaticSeats()">
+          Asignación Automática
+        </button>
+        <button type="button" class="btn btn-outline-info" 
+                (click)="selectRandomSeats()">
+          Aleatorio
+        </button>
+      </div>
+    </div>
+
+    <!-- Mapa del avión CUADRADO y CENTRADO -->
+    <div class="seat-map-wrapper">
+      <div class="seat-map">
+        <!-- Indicadores de clase -->
+        <div class="text-center mb-3">
+          <span class="badge bg-primary me-3">Clase Negocios</span>
+          <span class="badge bg-success">Clase Económica</span>
+        </div>
+        
+        <div *ngFor="let row of seatRows" class="seat-row">
+          <div *ngFor="let seat of row; let i = index" 
+               class="seat"
+               [ngClass]="{
+                 'seat-occupied': seat.occupied,
+                 'seat-selected': seat.selected,
+                 'seat-negocios': seat.type === 'negocios' && !seat.occupied && !seat.selected,
+                 'seat-economico': seat.type === 'economico' && !seat.occupied && !seat.selected
+               }"
+               (click)="handleSeatClick(seat)"
+               [style.cursor]="seat.occupied ? 'not-allowed' : 'pointer'">
+            {{ seat.label }}
+          </div>
+        </div>
+
+        <!-- Separador visual entre clases -->
+        <div class="class-divider"></div>
+
+        <!-- Área del sanitario -->
+        <div class="toilet-area">
+          <div class="text-center">
+            <div class="toilet-icon">
+              🚻
+            </div>
+            <small class="text-muted">Sanitarios</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="text-center mt-4">
+      <button class="btn btn-danger btn-lg me-3" 
+              (click)="confirmSeats()"
+              [disabled]="selectedSeats.length !== seatCount">
+        Confirmar Asientos
+      </button>
+      <button class="btn btn-outline-secondary btn-lg" 
+              (click)="backToSearch()">
+        Volver a Búsqueda
+      </button>
+    </div>
+
+    <!-- Leyenda CENTRADA -->
+    <div class="legend-container">
+      <div class="d-flex align-items-center gap-1">
+        <div class="legend-box seat-negocios"></div> Negocios
+      </div>
+      <div class="d-flex align-items-center gap-1">
+        <div class="legend-box seat-economico"></div> Económico
+      </div>
+
+      <div class="d-flex align-items-center gap-1">
+        <div class="legend-box seat-selected"></div> Seleccionado
+      </div>
+      <div class="d-flex align-items-center gap-1">
+        <div class="legend-box seat-occupied"></div> Ocupado
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de pasajeros - ACTUALIZADO CON AUTOCOMPLETADO DE CUI -->
+  <div *ngIf="showForm" class="card shadow-sm border-0 p-4">
+    <h5 class="text-center text-danger fw-bold mb-3">Datos de los pasajeros</h5>
+    
+    <div class="alert alert-info mb-4">
+      <strong>Vuelo:</strong> {{ origin }} → {{ destination }} | 
+      <strong>Fecha:</strong> {{ departureDate }} 
+      <span *ngIf="flightType === 'roundtrip'"> - {{ returnDate }}</span> |
+      <strong>Asientos:</strong>
+      <span *ngFor="let seat of selectedSeats" class="badge bg-primary ms-2">
+        {{ seat.label }}
+      </span>
+    </div>
+
+    <form (ngSubmit)="submitReservation()">
+      <div *ngFor="let passenger of passengers; let i = index" class="border rounded p-3 mb-3">
+        <h6 class="text-danger fw-bold">
+          Pasajero {{ i + 1 }} - Asiento: {{ passenger.seat }} 
+          <span class="badge" [ngClass]="passenger.type === 'negocios' ? 'bg-primary' : 'bg-warning'">
+            {{ passenger.type === 'negocios' ? 'Negocios' : 'Económico' }}
+          </span>
+        </h6>
+        <div class="row g-3">
+          <!-- Nombre Completo -->
+          <div class="col-md-6">
+            <label class="form-label">Nombre completo:</label>
+            <input type="text" class="form-control" 
+                   [class.is-invalid]="passenger.nameInvalid"
+                   [(ngModel)]="passenger.name" 
+                   name="name{{i}}" 
+                   required 
+                   placeholder="Nombre completo"
+                   (blur)="validatePassengerName(i)">
+            <div class="invalid-feedback" *ngIf="passenger.nameInvalid">
+              {{ passenger.nameError }}
+            </div>
+          </div>
+
+          <!-- CUI - CON AUTOCOMPLETADO -->
+          <!-- CUI - CON AUTOCOMPLETADO CORREGIDO -->
+<div class="col-md-6">
+  <label class="form-label">CUI:</label>
+  <input type="text" class="form-control" 
+         [class.is-invalid]="passenger.cuiInvalid"
+         [(ngModel)]="passenger.cui" 
+         name="cui{{i}}" 
+         required 
+         placeholder="Ingrese 8 dígitos RENAP"
+         (blur)="validateCUI(i)"
+         (input)="formatCUI(i)"
+         maxlength="8">
+  <div class="invalid-feedback" *ngIf="passenger.cuiInvalid">
+    {{ passenger.cuiError }}
+  </div>
+  <small class="form-text text-muted">
+    Ingrese solo los 8 dígitos RENAP. Los otros 5 se completan automáticamente.
+  </small>
+</div>
+          <!-- Departamento -->
+          <div class="col-md-6">
+            <label class="form-label">Departamento:</label>
+            <select class="form-select" 
+                    [(ngModel)]="passenger.departamento" 
+                    name="departamento{{i}}"
+                    (change)="onDepartamentoChange(i)" 
+                    required>
+              <option value="">Selecciona departamento</option>
+              <option *ngFor="let depto of departamentos" [value]="depto.codigo">
+                {{ depto.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Municipio -->
+          <div class="col-md-6">
+            <label class="form-label">Municipio:</label>
+            <select class="form-select" 
+                    [(ngModel)]="passenger.municipio" 
+                    name="municipio{{i}}" 
+                    required
+                    [disabled]="!passenger.departamento"
+                    (change)="onMunicipioChange(i)">
+              <option value="">Selecciona municipio</option>
+              <option *ngFor="let mun of getMunicipiosByDepartamento(passenger.departamento)" 
+                      [value]="mun">
+                {{ mun }}
+              </option>
+            </select>
+            <small *ngIf="!passenger.departamento" class="text-muted">
+              Primero selecciona un departamento
+            </small>
+          </div>
+
+          <!-- Tipo de asiento -->
+          <div class="col-md-6">
+            <label class="form-label">Tipo de asiento:</label>
+            <select class="form-select" [(ngModel)]="passenger.type" name="type{{i}}" disabled>
+              <option value="economico">Económico</option>
+              <option value="negocios">Negocios</option>
+            </select>
+          </div>
+
+          <!-- Equipaje adicional -->
+          <div class="col-md-6 d-flex align-items-center">
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="passenger.luggage" name="luggage{{i}}">
+              <label class="form-check-label">Equipaje adicional</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de ayuda para el usuario -->
+        <div class="alert alert-light mt-3 p-2 small">
+          <strong>💡 Ayuda:</strong> Al seleccionar departamento y municipio, el CUI se autocompletará automáticamente con los códigos correspondientes.
+        </div>
+      </div>
+      
+      <div class="text-center">
+        <button class="btn btn-danger btn-lg px-5 me-3" 
+                [disabled]="!isPassengerFormValid()">
+          Continuar
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" (click)="backToSeatMap()">
+          Cambiar Asientos
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Resumen final -->
+  <div *ngIf="showSummary" class="card shadow-sm border-0 p-4">
+    <h5 class="text-center text-success fw-bold mb-3">¡Reserva Confirmada! 🎉</h5>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Detalles del vuelo:</h6>
+        <p><strong>Ruta:</strong> {{ origin }} → {{ destination }}</p>
+        <p><strong>Fecha:</strong> {{ departureDate }} 
+           <span *ngIf="flightType === 'roundtrip'"> - {{ returnDate }}</span>
+        </p>
+        <p><strong>Tipo:</strong> {{ flightType === 'roundtrip' ? 'Ida y vuelta' : 'Solo ida' }}</p>
+        <p><strong>Pasajeros:</strong> {{ adults + children }}</p>
+      </div>
+      <div class="col-md-6">
+        <h6>Detalles de pasajeros:</h6>
+        <div *ngFor="let passenger of passengers" class="mb-2">
+          <strong>{{ passenger.name }}</strong> - {{ passenger.seat }} 
+          <span class="badge" [ngClass]="passenger.type === 'negocios' ? 'bg-primary' : 'bg-warning'">
+            {{ passenger.type }}
+          </span>
+          <span *ngIf="passenger.luggage" class="badge bg-info ms-1">Equipaje</span>
+          <br>
+          <small class="text-muted">
+            CUI: {{ passenger.cui }} | Depto: {{ passenger.departamento }} | Mun: {{ passenger.municipio }}
+          </small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mt-4">
+      <button class="btn btn-success btn-lg px-5" (click)="finalizeReservation()">
+        Finalizar Reserva
+      </button>
+    </div>
+  </div>
+</div>

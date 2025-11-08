@@ -1,0 +1,13 @@
+
+
+@media (min-width: 768px) {
+  .content {
+    margin-left: 2px;
+  }
+}
+
+
+.content {
+  margin-left: 20px; 
+  padding: 100px;
+}

@@ -1,0 +1,280 @@
+/* Estilos para el mapa de asientos CUADRADO y CENTRADO */
+.seat-map-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center; 
+}
+
+.seat-map {
+  display: inline-block; 
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 10px;
+  border: 2px solid #dee2e6;
+  margin: 0 auto; 
+}
+
+.seat-map-wrapper {
+  display: flex;
+  justify-content: center; 
+  width: 100%;
+}
+
+.seat-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  gap: 5px;
+}
+
+.seat {
+  width: 45px;
+  height: 45px;
+  line-height: 45px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  font-size: 0.8em;
+}
+
+.seat:hover {
+  transform: scale(1.1);
+  border-color: #007bff;
+}
+
+/* Colores específicos para cada tipo de asiento */
+.seat-negocios {
+  background-color: #007bff !important;
+  color: white !important;
+  border: 2px solid #0056b3 !important;
+}
+
+.seat-economico {
+  background-color: #28a745 !important;
+  color: white !important;
+  border: 2px solid #1e7e34 !important;
+}
+
+.seat-occupied {
+  background-color: #6c757d !important;
+  color: white !important;
+  cursor: not-allowed !important;
+  border: 2px solid #495057 !important;
+}
+
+.seat-selected {
+  background-color: #ffc107 !important;
+  color: black !important;
+  border: 2px solid #e0a800 !important;
+}
+
+/* Separador entre clases */
+.class-divider {
+  height: 3px;
+  background: linear-gradient(90deg, #007bff, #28a745);
+  margin: 15px 0;
+  border-radius: 2px;
+  width: 100%;
+}
+
+/* Área del sanitario */
+.toilet-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px;
+  background: #e9ecef;
+  border-radius: 8px;
+  border: 2px dashed #6c757d;
+  width: 100%; 
+}
+
+.toilet-icon {
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+.legend-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+/* Centrar la leyenda */
+.legend-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Responsive para mapa de asientos */
+@media (max-width: 768px) {
+  .seat-map {
+    padding: 1rem;
+  }
+  
+  .seat {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    font-size: 0.7em;
+  }
+  
+  .legend-container {
+    gap: 10px;
+  }
+}
+
+/* Estilos generales */
+.search-form {
+  margin-top: 20px; 
+}
+
+.container.mt-4 {
+  margin-top: 20px !important;
+}
+
+body {
+  padding-top: 70px; 
+}
+
+/* Estilos para las imágenes de ofertas */
+.destination-image {
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px 8px 0 0;
+}
+
+.destination-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.destination-image:hover img {
+  transform: scale(1.05);
+}
+
+.destination-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.destination-card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.destination-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.categoria-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.row.g-4 {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row.g-4 > .col-md-4 {
+  display: flex;
+}
+
+/* Estilos para el panel de pasajeros */
+.passenger-dropdown-container {
+  position: relative;
+}
+
+.passenger-dropdown {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.passenger-dropdown:hover {
+  background-color: #f8f9fa;
+  border-color: #86b7fe;
+}
+
+.passenger-panel {
+  position: absolute;
+  width: 300px;
+  z-index: 1000;
+  border: 1px solid #dee2e6;
+  margin-top: 0.5rem;
+  left: 5px;
+  right: 10px;
+}
+
+.passenger-panel .row {
+  margin: 0px;
+}
+
+.passenger-panel .col-md-6 {
+  padding: 1rem 0.5rem;
+}
+
+.passenger-panel .btn-sm {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.passenger-panel .fw-bold {
+  min-width: 80px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Responsive para ofertas y panel de pasajeros */
+@media (max-width: 768px) {
+  .destination-image {
+    height: 200px;
+  }
+  
+  .row.g-4 > .col-md-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .passenger-panel {
+    width: 280px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

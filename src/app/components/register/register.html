@@ -1,0 +1,142 @@
+<div class="register-container">
+  <div class="register-card">
+    <!-- Header -->
+    <div class="register-header text-center mb-4">
+      <div class="logo">
+        <i class="fas fa-plane-departure"></i>
+        <span class="logo-text">Crear Cuenta</span>
+      </div>
+      <p class="register-subtitle">Únete a nosotros y comienza a viajar</p>
+    </div>
+
+    <!-- Formulario -->
+    <form class="register-form" (ngSubmit)="onSubmit()" #registerForm="ngForm">
+      
+      <!-- Nombre Completo -->
+      <div class="form-group">
+        <label for="fullName" class="form-label">
+          <i class="fas fa-user"></i> Nombre completo
+        </label>
+        <input 
+          type="text" 
+          id="fullName" 
+          class="form-control" 
+          [class.is-invalid]="fullNameInvalid"
+          placeholder="Tu nombre completo"
+          [(ngModel)]="fullName"
+          name="fullName"
+          (blur)="validateFullName()"
+          [disabled]="isLoading"
+          required>
+        <div class="invalid-feedback" *ngIf="fullNameInvalid">
+          {{ fullNameError }}
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email" class="form-label">
+          <i class="fas fa-envelope"></i> Correo electrónico
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          class="form-control" 
+          [class.is-invalid]="emailInvalid"
+          placeholder="tu@gmail.com o tu@outlook.com"
+          [(ngModel)]="email"
+          name="email"
+          (blur)="validateEmail()"
+          [disabled]="isLoading"
+          required>
+        <div class="invalid-feedback" *ngIf="emailInvalid">
+          {{ emailError }}
+        </div>
+        <small class="form-text text-muted">Solo se permiten @gmail.com y @outlook.com</small>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group">
+        <label for="password" class="form-label">
+          <i class="fas fa-lock"></i> Contraseña
+        </label>
+        <input 
+          type="password" 
+          id="password" 
+          class="form-control" 
+          [class.is-invalid]="passwordInvalid"
+          placeholder="Mínimo 8 caracteres, 1 mayúscula, 1 número y 1 especial"
+          [(ngModel)]="password"
+          name="password"
+          (blur)="validatePassword()"
+          (input)="checkPasswordStrength()"
+          [disabled]="isLoading"
+          required>
+        <div class="invalid-feedback" *ngIf="passwordInvalid">
+          {{ passwordError }}
+        </div>
+        
+        <!-- Indicador de fortaleza de contraseña -->
+        <div class="password-strength mt-2" *ngIf="password && !passwordInvalid">
+          <div class="strength-bar">
+            <div class="strength-fill" [class]="passwordStrengthClass"></div>
+          </div>
+          <small [class]="passwordStrengthTextClass">Fortaleza: {{ passwordStrengthText }}</small>
+        </div>
+      </div>
+
+      <!-- Confirmar Contraseña -->
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">
+          <i class="fas fa-lock"></i> Confirmar contraseña
+        </label>
+        <input 
+          type="password" 
+          id="confirmPassword" 
+          class="form-control" 
+          [class.is-invalid]="confirmPasswordInvalid"
+          placeholder="Repite tu contraseña"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          (blur)="validateConfirmPassword()"
+          [disabled]="isLoading"
+          required>
+        <div class="invalid-feedback" *ngIf="confirmPasswordInvalid">
+          Las contraseñas no coinciden
+        </div>
+      </div>
+
+      <!-- Términos y condiciones -->
+      <div class="form-check mb-4">
+        <input 
+          type="checkbox" 
+          id="terms" 
+          class="form-check-input" 
+          [class.is-invalid]="termsInvalid"
+          [(ngModel)]="acceptTerms" 
+          name="acceptTerms" 
+          [disabled]="isLoading"
+          required>
+        <label for="terms" class="form-check-label">
+          Acepto los <a href="#" class="terms-link">términos y condiciones</a> y la <a href="#" class="terms-link">política de privacidad</a>
+        </label>
+        <div class="invalid-feedback" *ngIf="termsInvalid">
+          Debes aceptar los términos y condiciones
+        </div>
+      </div>
+
+      <!-- Botón de Registro -->
+      <button type="submit" class="register-btn" [disabled]="isLoading || !isFormValid()">
+        <i class="fas" [class.fa-user-plus]="!isLoading" [class.fa-spinner]="isLoading" [class.fa-spin]="isLoading"></i>
+        {{ isLoading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+      </button>
+    </form>
+
+    <!-- Login -->
+    <div class="login-section text-center">
+      <p>¿Ya tienes una cuenta? 
+        <a href="#" class="login-link" (click)="goToLogin($event)">Iniciar Sesión</a>
+      </p>
+    </div>
+  </div>
+</div>

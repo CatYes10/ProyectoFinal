@@ -1,0 +1,493 @@
+<div class="container mt-4">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3">Cargando estadísticas...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger text-center">
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadReportsData()">Reintentar</button>
+  </div>
+
+  <!-- No Data for Date -->
+  <div *ngIf="noDataForDate && !isLoading" class="alert alert-warning text-center">
+    <i class="fa fa-calendar-times me-2"></i>
+    No hay reservas registradas para la fecha seleccionada: <strong>{{fechaSeleccionada}}</strong>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error" class="row">
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header bg-danger text-white">
+          <h2 class="card-title mb-0">📊 Reportes del Sistema</h2>
+        </div>
+        <div class="card-body">
+          
+          <!-- Selector de Fecha -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">📅 Filtrar por Fecha</h5>
+                  
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="filtroFecha" id="todasFechas" 
+                           [checked]="mostrarTodasLasFechas"
+                           (change)="onMostrarTodasChange()">
+                    <label class="form-check-label" for="todasFechas">
+                      Mostrar todas las fechas (General)
+                    </label>
+                  </div>
+                  
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="filtroFecha" id="fechaEspecifica" 
+                           [checked]="!mostrarTodasLasFechas"
+                           (change)="mostrarTodasLasFechas = false">
+                    <label class="form-check-label" for="fechaEspecifica">
+                      Seleccionar fecha específica
+                    </label>
+                  </div>
+                  
+                  <div *ngIf="!mostrarTodasLasFechas" class="mt-3">
+                    <label class="form-label">Seleccionar fecha:</label>
+                    <select class="form-select" [(ngModel)]="fechaSeleccionada" (change)="onFechaChange()">
+                      <option value="">-- Selecciona una fecha --</option>
+                      <option *ngFor="let fecha of fechasDisponibles" [value]="fecha">
+                        {{ fecha }}
+                      </option>
+                    </select>
+                    <small class="text-muted">Solo se muestran fechas con reservas registradas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-body text-center">
+                  <h5 class="card-title">Información del Reporte</h5>
+                  <p *ngIf="mostrarTodasLasFechas" class="text-success">
+                    <i class="fa fa-chart-bar me-2"></i>
+                    Mostrando estadísticas generales de todas las fechas
+                  </p>
+                  <p *ngIf="!mostrarTodasLasFechas && fechaSeleccionada" class="text-info">
+                    <i class="fa fa-calendar me-2"></i>
+                    Mostrando estadísticas para: <strong>{{fechaSeleccionada}}</strong>
+                  </p>
+                  <p class="text-muted small mt-2">
+                    Total de fechas con reservas: {{fechasDisponibles.length}}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estadísticas Principales -->
+          <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+              <div class="card text-white bg-primary">
+                <div class="card-body">
+                  <h5 class="card-title">Usuarios Registrados</h5>
+                  <h2 class="display-4">{{ userCount }}</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="card text-white bg-success">
+                <div class="card-body">
+                  <h5 class="card-title">Total Reservas</h5>
+                  <h2 class="display-4">{{ totalReservations }}</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="card text-white bg-warning">
+                <div class="card-body">
+                  <h5 class="card-title">Asientos Ocupados</h5>
+                  <h2 class="display-4">{{ occupiedSeats }}</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Reportes -->
+          <div class="list-group mb-4">
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">📈 Diagrama de Asientos</h5>
+                <button class="btn btn-outline-primary btn-sm" (click)="viewSeatDiagram()">Ver Diagrama</button>
+              </div>
+              <p class="mb-1">Visualización de todos los asientos del avión y su estado actual</p>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">👥 Cantidad de Usuarios Creados</h5>
+                <span class="badge bg-primary rounded-pill">{{ userCount }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">🎫 Cantidad de Reservas por Usuario</h5>
+                <span class="badge bg-info rounded-pill">{{ reservationsPerUser }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">💼 Asientos Negocios Ocupados</h5>
+                <span class="badge bg-danger rounded-pill">{{ businessOccupied }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">💺 Asientos Económicos Ocupados</h5>
+                <span class="badge bg-danger rounded-pill">{{ economyOccupied }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">💼 Asientos Negocios Libres</h5>
+                <span class="badge bg-success rounded-pill">{{ businessFree }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">💺 Asientos Económicos Libres</h5>
+                <span class="badge bg-success rounded-pill">{{ economyFree }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">🎯 Asientos Seleccionados Manualmente</h5>
+                <span class="badge bg-warning rounded-pill">{{ manualSelections }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">🎲 Asientos Seleccionados Aleatoriamente</h5>
+                <span class="badge bg-secondary rounded-pill">{{ randomSelections }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">✏️ Asientos Modificados</h5>
+                <span class="badge bg-info rounded-pill">{{ modifiedSeats }}</span>
+              </div>
+            </div>
+
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">❌ Asientos Cancelados</h5>
+                <span class="badge bg-dark rounded-pill">{{ canceledSeats }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección Cargar XML -->
+          <div class="row mt-5">
+            <div class="col-12">
+              <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                  <h5 class="card-title mb-0">
+                    <i class="fa fa-upload me-2"></i>Cargar Asientos desde Archivo XML
+                  </h5>
+                </div>
+                <div class="card-body">
+                  
+                  <!-- Selector de archivo -->
+                  <div class="mb-3">
+                    <label class="form-label">Seleccionar archivo XML:</label>
+                    <input type="file" id="xmlFileInput" class="form-control" 
+                          accept=".xml,text/xml" 
+                          (change)="onFileSelected($event)">
+                    <div class="form-text">
+                      Selecciona un archivo XML con el formato de asientos reservados
+                    </div>
+                  </div>
+
+                  <!-- Información del archivo seleccionado -->
+                  <div *ngIf="archivoSeleccionado" class="alert alert-info">
+                    <i class="fa fa-file me-2"></i>
+                    Archivo seleccionado: <strong>{{ archivoSeleccionado.name }}</strong>
+                    ({{ archivoSeleccionado.size | number }} bytes)
+                  </div>
+
+                  <!-- Botón cargar -->
+                  <div class="mb-3">
+                    <button class="btn btn-success me-2" 
+                            (click)="cargarArchivoXML()"
+                            [disabled]="!archivoSeleccionado || cargandoXML">
+                      <i class="fa fa-upload me-2" *ngIf="!cargandoXML"></i>
+                      <i class="fa fa-spinner fa-spin me-2" *ngIf="cargandoXML"></i>
+                      {{ cargandoXML ? 'Cargando...' : 'Cargar XML' }}
+                    </button>
+                    
+                    <button class="btn btn-outline-secondary" 
+                            (click)="limpiarCarga()"
+                            [disabled]="cargandoXML">
+                      <i class="fa fa-times me-2"></i>Limpiar
+                    </button>
+                  </div>
+
+                  <!-- Resultado de carga -->
+                  <div *ngIf="resultadoCarga" class="mt-3">
+                    <div class="alert alert-success">
+                      <h6><i class="fa fa-check-circle me-2"></i>Carga Completada</h6>
+                      <div class="row">
+                        <div class="col-md-3">
+                          <strong>Tiempo:</strong> {{ resultadoCarga.tiempoProcesamiento }}ms
+                        </div>
+                        <div class="col-md-3">
+                          <strong>Total:</strong> {{ resultadoCarga.resumen.totalAsientos }}
+                        </div>
+                        <div class="col-md-3">
+                          <strong>Éxitos:</strong> 
+                          <span class="text-success">{{ resultadoCarga.resumen.exitosos }}</span>
+                        </div>
+                        <div class="col-md-3">
+                          <strong>Errores:</strong> 
+                          <span class="text-danger">{{ resultadoCarga.resumen.errores }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Asientos cargados -->
+                    <div *ngIf="resultadoCarga.resumen.asientosCargados.length > 0" class="mb-3">
+                      <h6>Asientos Cargados Exitosamente:</h6>
+                      <div class="d-flex flex-wrap gap-2">
+                        <span *ngFor="let asiento of resultadoCarga.resumen.asientosCargados" 
+                              class="badge bg-success">
+                          {{ asiento }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Ver diagrama actualizado -->
+                    <div class="text-center">
+                      <button class="btn btn-primary" (click)="viewSeatDiagram()">
+                        <i class="fa fa-eye me-2"></i>Ver Diagrama Actualizado
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Errores de carga -->
+                  <div *ngIf="erroresCarga.length > 0" class="mt-3">
+                    <div class="alert alert-warning">
+                      <h6><i class="fa fa-exclamation-triangle me-2"></i>Errores durante la carga</h6>
+                      <div class="small">
+                        <div *ngFor="let error of erroresCarga" class="mb-1">
+                          <strong>Línea {{ error.linea }}</strong> - Asiento {{ error.asiento }}: 
+                          {{ error.error }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón Descargar XML -->
+          <div class="text-center mt-4">
+            <button class="btn btn-danger btn-lg" (click)="exportToXML()">
+              <i class="fa fa-download me-2"></i> Descargar XML de Reservas
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Diagrama de Asientos -->
+<div class="modal fade" id="seatDiagramModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ getTituloDiagrama() }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="seat-diagram-container">
+          
+          <!-- Leyenda -->
+          <div class="legend mb-4">
+            <div class="row text-center">
+              <div class="col-md-3">
+                <span class="badge bg-primary me-2">💼</span>
+                <small>Negocios Ocupado</small>
+              </div>
+              <div class="col-md-3">
+                <span class="badge bg-success me-2">🟦</span>
+                <small>Negocios Libre</small>
+              </div>
+              <div class="col-md-3">
+                <span class="badge bg-primary me-2">💺</span>
+                <small>Económico Ocupado</small>
+              </div>
+              <div class="col-md-3">
+                <span class="badge bg-success me-2">🟩</span>
+                <small>Económico Libre</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cabina del Avión -->
+          <div class="airplane-cabin">
+            
+            <!-- Sección de Negocios -->
+            <div class="business-section mb-5">
+              <h6 class="text-center mb-3">💼 CLASE NEGOCIOS</h6>
+              
+              <!-- Números de columna -->
+              <div class="column-numbers mb-2">
+                <div class="d-flex justify-content-center gap-4">
+                  <div class="column-number">1</div>
+                  <div class="column-number">2</div>
+                </div>
+              </div>
+              
+              <!-- Asientos de negocios -->
+              <div class="seat-grid" *ngFor="let row of businessDiagram; let i = index">
+                <div class="seat-row">
+                  <!-- Línea vertical izquierda -->
+                  <div class="vertical-line"></div>
+                  
+                  <!-- Asientos -->
+                  <div *ngFor="let seat of row" 
+                       class="seat"
+                       [class]="seat.class"
+                       [class.occupied]="seat.occupied"
+                       [title]="getSeatTooltip(seat)">
+                    {{ getSeatIcon(seat) }}
+                  </div>
+                  
+                  <!-- Línea vertical derecha -->
+                  <div class="vertical-line"></div>
+                </div>
+                
+                <!-- Letra de fila -->
+                <div class="row-letter text-center mt-1">
+                  {{ row[0].number.charAt(0) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Separador -->
+            <div class="section-divider mb-4">
+              <hr>
+              <h6 class="text-center">✈️</h6>
+            </div>
+
+            <!-- Sección Económica -->
+            <div class="economy-section">
+              <h6 class="text-center mb-3">💺 CLASE ECONÓMICA</h6>
+              
+              <!-- Números de columna -->
+              <div class="column-numbers mb-2">
+                <div class="d-flex justify-content-center gap-3">
+                  <div class="column-number">3</div>
+                  <div class="column-number">4</div>
+                  <div class="column-number">5</div>
+                  <div class="column-number">6</div>
+                  <div class="column-number">7</div>
+                </div>
+              </div>
+              
+              <!-- Asientos económicos -->
+              <div class="seat-grid" *ngFor="let row of economyDiagram; let i = index">
+                <div class="seat-row">
+                  <!-- Línea vertical izquierda -->
+                  <div class="vertical-line"></div>
+                  
+                  <!-- Asientos -->
+                  <div *ngFor="let seat of row" 
+                       class="seat"
+                       [class]="seat.class"
+                       [class.occupied]="seat.occupied"
+                       [title]="getSeatTooltip(seat)">
+                    {{ getSeatIcon(seat) }}
+                  </div>
+                  
+                  <!-- Línea vertical derecha -->
+                  <div class="vertical-line"></div>
+                </div>
+                
+                <!-- Letra de fila -->
+                <div class="row-letter text-center mt-1">
+                  {{ row[0].number.charAt(0) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estadísticas del Diagrama - ACTUALIZADO -->
+          <div class="diagram-stats mt-4">
+            <div class="row text-center">
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Total Asientos</h6>
+                    <h4 class="text-primary">{{ (businessDiagram.length * 2) + (economyDiagram.length * 5) }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Ocupados</h6>
+                    <h4 class="text-danger">{{ getTotalAsientosOcupadosEnDiagrama() }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Disponibles</h6>
+                    <h4 class="text-success">{{ ((businessDiagram.length * 2) + (economyDiagram.length * 5)) - getTotalAsientosOcupadosEnDiagrama() }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Ocupación</h6>
+                    <h4 class="text-warning">{{ ((getTotalAsientosOcupadosEnDiagrama() / ((businessDiagram.length * 2) + (economyDiagram.length * 5))) * 100).toFixed(1) }}%</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="alert alert-info text-center">
+                  <small>
+                    <i class="fa fa-info-circle me-2"></i>
+                    Este diagrama muestra los asientos ocupados para: <strong>{{ fechaDiagrama }}</strong>
+                    | Total de asientos ocupados: <strong>{{ getTotalAsientosOcupadosEnDiagrama() }}</strong>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

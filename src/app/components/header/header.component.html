@@ -1,0 +1,62 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+  <div class="container">
+    <!-- Logo con routerLink -->
+    <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <img src="assets/LOGO.png" alt="Logo" height="50" class="me-2">
+      <span class="fw-bold text-danger">Reserva Katty ✈️</span>
+    </a>
+
+    <!-- Botón hamburguesa para móviles -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Enlaces de navegación -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+
+        <!-- Inicio -->
+        <li class="nav-item">
+          <a class="nav-link text-danger fw-bold" routerLink="/" routerLinkActive="active">Inicio</a>
+        </li>
+
+        <!-- Reservar vuelo -->
+        <li class="nav-item">
+          <a class="nav-link text-danger fw-bold" routerLink="/reservation" routerLinkActive="active">Reservar</a>
+        </li>
+
+        <!-- Mis Reservaciones -->
+        <li class="nav-item" *ngIf="isLoggedIn">
+          <a class="nav-link text-danger fw-bold" routerLink="/manage-reservation" routerLinkActive="active">
+            Mis Reservaciones
+          </a>
+        </li>
+
+        <!-- Reportes -->
+        <li class="nav-item">
+          <a class="nav-link text-danger fw-bold" routerLink="/reports" routerLinkActive="active">Reportes</a>
+        </li>
+
+        <!-- Menú de usuario (solo loggeado) -->
+        <li class="nav-item dropdown" *ngIf="isLoggedIn && currentUser">
+          <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+            👤 {{ currentUser.email }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/reservation">Reservar Vuelo</a></li>
+            <li><a class="dropdown-item" routerLink="/manage-reservation">Mis Reservaciones</a></li>
+            <li><a class="dropdown-item" routerLink="/reports">Reportes</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" (click)="logout()">Cerrar Sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Login (solo cuando NO está loggeado) -->
+        <li class="nav-item" *ngIf="!isLoggedIn">
+          <a class="nav-link text-danger fw-bold" routerLink="/login" routerLinkActive="active">Login</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

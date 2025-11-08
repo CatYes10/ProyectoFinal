@@ -1,0 +1,100 @@
+<div class="home-wrapper">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content text-center text-white">
+        <h1 class="hero-title">Descubre el Mundo con Nosotros</h1>
+        <p class="hero-subtitle">Las mejores ofertas en vuelos nacionales e internacionales ✈️</p>
+        <button class="hero-btn" routerLink="/reservation">
+          <i class="fas fa-plane-departure"></i>
+          Reservar Ahora
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ofertas Destacadas -->
+  <section class="offers-section">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <h2 class="section-title">Ofertas Destacadas</h2>
+        <p class="section-subtitle">Descubre nuestros destinos más populares</p>
+      </div>
+
+      <div class="row justify-content-center g-4">
+        <div class="col-xl-4 col-md-6" *ngFor="let oferta of ofertas; let i = index">
+          <div class="card offer-card shadow-sm" [class.featured]="i === 0">
+            <div class="card-image">
+              <img [src]="oferta.imagen" class="card-img-top" [alt]="oferta.titulo">
+              <div class="card-badge" *ngIf="i === 0">
+                <i class="fas fa-crown"></i> Más Popular
+              </div>
+            </div>
+            <div class="card-body text-center">
+              <h5 class="card-title text-danger fw-bold">{{ oferta.titulo }}</h5>
+              <p class="card-text">{{ oferta.descripcion }}</p>
+              <div class="price-section mb-3">
+                <span class="price-from">Desde</span>
+                <span class="price-amount">{{ oferta.precio }}</span>
+              </div>
+              <button class="btn-reservar" (click)="reservarOferta(oferta)">
+                <i class="fas fa-shopping-cart"></i>
+                Reservar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ <!-- Características -->
+<section class="features-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card text-center">
+          <div class="feature-icon">
+            <!-- Icono Bootstrap en lugar de círculo -->
+            <i class="bi bi-shield-check fs-1 text-white"></i>
+          </div>
+          <h4>Seguridad Garantizada</h4>
+          <p>Vuela con tranquilidad con nuestros estándares de seguridad internacional</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card text-center">
+          <div class="feature-icon">
+            <!-- Icono Bootstrap en lugar de círculo -->
+            <i class="bi bi-headset fs-1 text-white"></i>
+          </div>
+          <h4>Soporte 24/7</h4>
+          <p>Estamos aquí para ayudarte en cualquier momento de tu viaje</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card text-center">
+          <div class="feature-icon">
+            <!-- Icono Bootstrap en lugar de círculo -->
+            <i class="bi bi-tag fs-1 text-white"></i>
+          </div>
+          <h4>Mejores Precios</h4>
+          <p>Ofertas exclusivas y precios competitivos en todos nuestros destinos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <section class="cta-section">
+    <div class="container text-center">
+      <h2>¿Listo para tu próxima aventura?</h2>
+      <p>Millones de viajeros confían en nosotros para hacer sus sueños realidad</p>
+      <button class="cta-btn" routerLink="/reservation">
+        Comenzar a Reservar
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </section>
+</div>

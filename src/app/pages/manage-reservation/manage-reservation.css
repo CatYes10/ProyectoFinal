@@ -1,0 +1,17 @@
+table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+}
+
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
